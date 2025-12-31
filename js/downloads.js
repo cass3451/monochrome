@@ -30,7 +30,9 @@ async function downloadTrackToServer(track, quality, api) {
                 quality: quality,
                 track: track,
                 apiBaseUrl: apiBaseUrl,
-                downloadPath: getServerDownloadPath()
+                downloadPath: getServerDownloadPath(),
+                filenameTemplate: localStorage.getItem('filename-template'),
+                folderTemplate: localStorage.getItem('folder-structure-template')
             })
         });
         

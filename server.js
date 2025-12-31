@@ -12,13 +12,12 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
 
-// Server download endpoint
 app.post('/api/download-to-server', async (req, res) => {
     try {
-        const { trackId, quality, track, apiBaseUrl } = req.body;
+        const { trackId, quality, track, apiBaseUrl, downloadPath, filenameTemplate, folderTemplate } = req.body;
         
         // Get download path from settings (fallback to /tmp)
-        const downloadPath = req.body.downloadPath || '/tmp/music';
+        const basePath = downloadPath || '/tmp/music';
         
         // Fetch track info from Tidal API
         const apiUrl = `${apiBaseUrl}/track/?id=${trackId}&quality=${quality}`;
@@ -33,19 +32,12 @@ app.post('/api/download-to-server', async (req, res) => {
         const audioResponse = await fetch(streamUrl);
         const audioBuffer = await audioResponse.arrayBuffer();
         
-        // Build filename
-        const artists = Array.isArray(track.artists) 
-            ? track.artists.map(a => a.name).join(', ')
-            : track.artist?.name || 'Unknown Artist';
-        const title = track.title || 'Unknown Title';
-        const ext = manifestData.mimeType === 'audio/flac' ? 'flac' : 'mp4';
-        const filename = `${sanitizeFilename(artists)} - ${sanitizeFilename(title)}.${ext}`;
+        // Build paths using templates
+        const folderPath = buildServerFolderPath(track, folderTemplate);
+        const filename = buildServerFilename(track, quality, manifestData.mimeType, filenameTemplate);
         
-        // Create directory structure: downloadPath/Artist/Album/
-        const artistFolder = sanitizeFilename(track.artist?.name || 'Unknown Artist');
-        const albumFolder = sanitizeFilename(track.album?.title || 'Unknown Album');
-        const fullPath = path.join(downloadPath, artistFolder, albumFolder);
-        
+        // Create full directory path
+        const fullPath = path.join(basePath, folderPath);
         await fs.mkdir(fullPath, { recursive: true });
         
         // Save file
@@ -70,6 +62,75 @@ app.post('/api/download-to-server', async (req, res) => {
 function sanitizeFilename(str) {
     if (!str) return 'Unknown';
     return str.replace(/[/\\?%*:|"<>]/g, '-').substring(0, 200);
+}
+
+/**
+ * Replaces template placeholders with actual values
+ */
+function formatTemplate(template, data) {
+    if (!template) return '';
+    
+    return template.replace(/\{(\w+)\}/g, (match, key) => {
+        const value = data[key];
+        if (value === undefined || value === null) return '';
+        return sanitizeFilename(String(value));
+    });
+}
+
+/**
+ * Gets file extension based on quality/mime type
+ */
+function getExtensionFromMimeType(mimeType) {
+    if (mimeType === 'audio/flac') return 'flac';
+    if (mimeType === 'audio/mp4' || mimeType === 'audio/m4a') return 'm4a';
+    return 'mp4'; // default fallback
+}
+
+/**
+ * Builds filename using template
+ */
+function buildServerFilename(track, quality, mimeType, filenameTemplate) {
+    const template = filenameTemplate || '{trackNumber} - {artist} - {title}';
+    const extension = getExtensionFromMimeType(mimeType);
+    
+    const data = {
+        trackNumber: track.trackNumber ? String(track.trackNumber).padStart(2, '0') : '',
+        artist: track.artist?.name || 'Unknown Artist',
+        title: track.title || 'Unknown Title',
+        album: track.album?.title || 'Unknown Album'
+    };
+    
+    return formatTemplate(template, data) + '.' + extension;
+}
+
+/**
+ * Builds folder path using template
+ */
+function buildServerFolderPath(track, folderTemplate) {
+    const template = folderTemplate || '{albumArtist}/{albumTitle}';
+    
+    // Extract year from release date if available
+    let year = '';
+    const releaseDateStr = track.album?.releaseDate || track.streamStartDate;
+    if (releaseDateStr) {
+        try {
+            const releaseDate = new Date(releaseDateStr);
+            if (!isNaN(releaseDate.getTime())) {
+                year = releaseDate.getFullYear().toString();
+            }
+        } catch (e) {
+            // Invalid date, leave year empty
+        }
+    }
+    
+    const data = {
+        albumArtist: track.album?.artist?.name || track.artist?.name || 'Unknown Artist',
+        albumTitle: track.album?.title || 'Unknown Album',
+        artist: track.artist?.name || 'Unknown Artist',
+        year: year
+    };
+    
+    return formatTemplate(template, data);
 }
 
 // SSL setup (use your existing certs)
