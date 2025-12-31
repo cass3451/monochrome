@@ -557,10 +557,21 @@ function completeBulkDownload(notifEl, success = true, message = null) {
 export async function downloadTrackWithMetadata(track, quality, api, lyricsManager = null, abortController = null) {
 
     // Check if server download is enabled
-    if (isServerDownloadEnabled()) {
+    const serverEnabled = isServerDownloadEnabled();
+    const serverPath = getServerDownloadPath();
+    console.log('=== DOWNLOAD DEBUG ===');
+    console.log('Server download enabled?', serverEnabled);
+    console.log('Server download path:', serverPath);
+    console.log('localStorage server-download-enabled:', localStorage.getItem('server-download-enabled'));
+    console.log('======================');
+    
+    if (serverEnabled) {
+        console.log('Routing to server download...');
         return await downloadTrackToServer(track, quality, api);
     }
 
+    console.log('Routing to client download...');
+    
     if (!track) {
         alert('No track is currently playing');
         return;

@@ -59,6 +59,9 @@ app.post('/api/download-to-server', async (req, res) => {
     }
 });
 
+/**
+ * Sanitizes individual filename/folder components (removes all special chars including /)
+ */
 function sanitizeFilename(str) {
     if (!str) return 'Unknown';
     return str.replace(/[/\\?%*:|"<>]/g, '-').substring(0, 200);
@@ -66,6 +69,7 @@ function sanitizeFilename(str) {
 
 /**
  * Replaces template placeholders with actual values
+ * Path separators (/) are preserved, but values are sanitized
  */
 function formatTemplate(template, data) {
     if (!template) return '';
@@ -73,8 +77,19 @@ function formatTemplate(template, data) {
     return template.replace(/\{(\w+)\}/g, (match, key) => {
         const value = data[key];
         if (value === undefined || value === null) return '';
+        // Sanitize individual values (no slashes allowed in the actual data)
         return sanitizeFilename(String(value));
     });
+}
+
+/**
+ * Sanitizes a string for use in file paths
+ * Removes invalid characters but NOT forward slashes (which are path separators)
+ */
+function sanitizeForPath(str) {
+    if (!str) return 'Unknown';
+    // Remove everything EXCEPT forward slashes
+    return str.replace(/[\\?%*:|"<>]/g, '-').substring(0, 200);
 }
 
 /**
