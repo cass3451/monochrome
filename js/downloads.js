@@ -6,6 +6,50 @@ import { addMetadataToAudio } from './metadata.js';
 const downloadTasks = new Map();
 let downloadNotificationContainer = null;
 
+// Check if server download mode is enabled
+function isServerDownloadEnabled() {
+    return localStorage.getItem('server-download-enabled') === 'true';
+}
+
+function getServerDownloadPath() {
+    return localStorage.getItem('server-download-path') || '/media/music';
+}
+
+// Download track to server instead of client
+async function downloadTrackToServer(track, quality, api) {
+    const apiBaseUrl = api.baseUrl || 'https://tidal-api.binimum.org';
+    
+    try {
+        showNotification('Sending to server...');
+        
+        const response = await fetch('/api/download-to-server', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                trackId: track.id,
+                quality: quality,
+                track: track,
+                apiBaseUrl: apiBaseUrl,
+                downloadPath: getServerDownloadPath()
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(`✓ Saved to server: ${result.filename}`);
+            return true;
+        } else {
+            showNotification(`✗ Server download failed: ${result.error}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Server download error:', error);
+        showNotification('✗ Could not connect to server');
+        return false;
+    }
+}
+
 /**
  * Adds a cover blob to a JSZip instance
  */
@@ -301,6 +345,12 @@ async function downloadTracksToZip(zip, tracks, folderName, api, quality, lyrics
 }
 
 export async function downloadAlbumAsZip(album, tracks, api, quality, lyricsManager = null) {
+
+    if (isServerDownloadEnabled()) {
+        showNotification('⚠ Server download for albums coming soon - downloading to client');
+        // Fall through to normal download for now
+    }
+
     const releaseDateStr = album.releaseDate || (tracks[0]?.streamStartDate ? tracks[0].streamStartDate.split('T')[0] : '');
     const releaseDate = releaseDateStr ? new Date(releaseDateStr) : null;
     const year = (releaseDate && !isNaN(releaseDate.getTime())) ? releaseDate.getFullYear() : '';
@@ -330,7 +380,13 @@ export async function downloadAlbumAsZip(album, tracks, api, quality, lyricsMana
     }
 }
 
-export async function downloadPlaylistAsZip(playlist, tracks, api, quality, lyricsManager = null) {       
+export async function downloadPlaylistAsZip(playlist, tracks, api, quality, lyricsManager = null) {     
+    
+    if (isServerDownloadEnabled()) {
+        showNotification('⚠ Server download for albums coming soon - downloading to client');
+        // Fall through to normal download for now
+    }
+
     const folderName = formatTemplate(localStorage.getItem('zip-folder-template') || '{albumTitle} - {albumArtist}', {
         albumTitle: playlist.title,
         albumArtist: 'Playlist',
@@ -358,6 +414,12 @@ export async function downloadPlaylistAsZip(playlist, tracks, api, quality, lyri
 }
 
 export async function downloadDiscography(artist, api, quality, lyricsManager = null) {
+
+    if (isServerDownloadEnabled()) {
+        showNotification('⚠ Server download for albums coming soon - downloading to client');
+        // Fall through to normal download for now
+    }
+
     const rootFolder = `${sanitizeForFilename(artist.name)} discography`;
 
     // Always use file picker for discography as it's likely large
@@ -491,6 +553,11 @@ function completeBulkDownload(notifEl, success = true, message = null) {
 }
 
 export async function downloadTrackWithMetadata(track, quality, api, lyricsManager = null, abortController = null) {
+
+    // Check if server download is enabled
+    if (isServerDownloadEnabled()) {
+        return await downloadTrackToServer(track, quality, api);
+    }
 
     if (!track) {
         alert('No track is currently playing');

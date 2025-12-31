@@ -355,6 +355,27 @@
                             </label>
                         </div>
                     </div>
+                    
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Server download</span>
+                                <span class="description">lipsum</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="server-download-enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Filename Template</span>
+                                <span class="description">Customize download filenames. Available: {trackNumber}, {artist}, {title}, {album}</span>
+                            </div>
+                            <input type="text" id="server-download-path" class="template-input" placeholder="{trackNumber} - {artist} - {title}">
+                        </div>
+                    </div>
+                    
                     <div class="settings-group">
                         <div class="setting-item">
                             <div class="info">

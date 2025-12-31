@@ -284,6 +284,24 @@ export function initializeSettings(scrobbler, player, api, ui) {
         });
     }
 
+    // Server download toggle
+    const serverDownloadToggle = document.getElementById('server-download-enabled');
+    if (serverDownloadToggle) {
+        serverDownloadToggle.checked = localStorage.getItem('server-download-enabled') === 'true';
+        serverDownloadToggle.addEventListener('change', (e) => {
+            localStorage.setItem('server-download-enabled', e.target.checked);
+        });
+    }
+
+    // Server download path
+    const serverDownloadPath = document.getElementById('server-download-path');
+    if (serverDownloadPath) {
+        serverDownloadPath.value = localStorage.getItem('server-download-path') || '/media/music';
+        serverDownloadPath.addEventListener('change', (e) => {
+            localStorage.setItem('server-download-path', e.target.value);
+        });
+    }
+
     // Filename template setting
     const filenameTemplate = document.getElementById('filename-template');
     if (filenameTemplate) {
