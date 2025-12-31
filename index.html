@@ -367,15 +367,41 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
+                    <div class="setting-item">
+                        <div class="info">
+                            <span class="label">Folder Structure Template</span>
+                            <span class="description">Organize server downloads. Available: {albumArtist}, {albumTitle}, {year}, {artist}</span>
+                        </div>
+                        <input type="text" id="folder-structure-template" class="template-input" placeholder="{albumArtist}/{albumTitle}">
+                    </div>
+                                        
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Download Lyrics</span>
+                                <span class="description">Include .lrc files when downloading tracks/albums</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="download-lyrics-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                         <div class="setting-item">
                             <div class="info">
                                 <span class="label">Filename Template</span>
                                 <span class="description">Customize download filenames. Available: {trackNumber}, {artist}, {title}, {album}</span>
                             </div>
-                            <input type="text" id="server-download-path" class="template-input" placeholder="{trackNumber} - {artist} - {title}">
+                            <input type="text" id="filename-template" class="template-input" placeholder="{trackNumber} - {artist} - {title}">
+                        </div>
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">ZIP Folder Template</span>
+                                <span class="description">Customize album folder names. Available: {albumTitle}, {albumArtist}, {year}</span>
+                            </div>
+                            <input type="text" id="zip-folder-template" class="template-input" placeholder="{albumTitle} - {albumArtist} - monochrome.tf">
                         </div>
                     </div>
-                    
+
                     <div class="settings-group">
                         <div class="setting-item">
                             <div class="info">
@@ -479,33 +505,6 @@
                                 <option value="dropdown">Dropdown Menu</option>
                                 <option value="inline">Inline Buttons</option>
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="setting-item">
-                            <div class="info">
-                                <span class="label">Download Lyrics</span>
-                                <span class="description">Include .lrc files when downloading tracks/albums</span>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="download-lyrics-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <div class="info">
-                                <span class="label">Filename Template</span>
-                                <span class="description">Customize download filenames. Available: {trackNumber}, {artist}, {title}, {album}</span>
-                            </div>
-                            <input type="text" id="filename-template" class="template-input" placeholder="{trackNumber} - {artist} - {title}">
-                        </div>
-                        <div class="setting-item">
-                            <div class="info">
-                                <span class="label">ZIP Folder Template</span>
-                                <span class="description">Customize album folder names. Available: {albumTitle}, {albumArtist}, {year}</span>
-                            </div>
-                            <input type="text" id="zip-folder-template" class="template-input" placeholder="{albumTitle} - {albumArtist} - monochrome.tf">
                         </div>
                     </div>
 

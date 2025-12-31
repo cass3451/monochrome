@@ -302,6 +302,15 @@ export function initializeSettings(scrobbler, player, api, ui) {
         });
     }
 
+    // Folder structure template
+    const folderStructureTemplate = document.getElementById('folder-structure-template');
+    if (folderStructureTemplate) {
+        folderStructureTemplate.value = localStorage.getItem('folder-structure-template') || '{albumArtist}/{albumTitle}';
+        folderStructureTemplate.addEventListener('change', (e) => {
+            localStorage.setItem('folder-structure-template', e.target.value);
+        });
+    }
+
     // Filename template setting
     const filenameTemplate = document.getElementById('filename-template');
     if (filenameTemplate) {
