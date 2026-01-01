@@ -296,7 +296,7 @@ export function initializeSettings(scrobbler, player, api, ui) {
     // Server download path
     const serverDownloadPath = document.getElementById('server-download-path');
     if (serverDownloadPath) {
-        serverDownloadPath.value = localStorage.getItem('server-download-path') || '/media/music';
+        serverDownloadPath.value = localStorage.getItem('server-download-path') || '/tmp/music';
         serverDownloadPath.addEventListener('change', (e) => {
             localStorage.setItem('server-download-path', e.target.value);
         });

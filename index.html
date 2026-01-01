@@ -359,25 +359,6 @@
                     <div class="settings-group">
                         <div class="setting-item">
                             <div class="info">
-                                <span class="label">Server download</span>
-                                <span class="description">lipsum</span>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="server-download-enabled">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    <div class="setting-item">
-                        <div class="info">
-                            <span class="label">Folder Structure Template</span>
-                            <span class="description">Organize server downloads. Available: {albumArtist}, {albumTitle}, {year}, {artist}</span>
-                        </div>
-                        <input type="text" id="folder-structure-template" class="template-input" placeholder="{albumArtist}/{albumTitle}">
-                    </div>
-                                        
-                    <div class="settings-group">
-                        <div class="setting-item">
-                            <div class="info">
                                 <span class="label">Download Lyrics</span>
                                 <span class="description">Include .lrc files when downloading tracks/albums</span>
                             </div>
@@ -386,6 +367,32 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Server download</span>
+                                <span class="description">Download files directly to your media server</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="server-download-enabled">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Server Base Path</span>
+                                <span class="description">Directory on server where music will be saved, relative to root (/)</span>
+                            </div>
+                            <input type="text" id="server-download-path" class="template-input" placeholder="/tmp/music">
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="info">
+                                <span class="label">Folder Structure Template</span>
+                                <span class="description">Organize server downloads. Available: {albumTitle}, {year}, {artist}</span>
+                            </div>
+                            <input type="text" id="folder-structure-template" class="template-input" placeholder="{albumArtist}/{albumTitle}">
+                        </div>                    
                         <div class="setting-item">
                             <div class="info">
                                 <span class="label">Filename Template</span>

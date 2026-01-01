@@ -139,7 +139,7 @@ function buildServerFolderPath(track, folderTemplate) {
     }
     
     const data = {
-        albumArtist: track.album?.artist?.name || track.artist?.name || 'Unknown Artist',
+        albumArtist: track.album?.artist?.name || track.artist?.name || 'Unknown Album Artist',
         albumTitle: track.album?.title || 'Unknown Album',
         artist: track.artist?.name || 'Unknown Artist',
         year: year
