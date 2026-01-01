@@ -412,7 +412,7 @@ kbd {
 
 .main-header {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
     margin-bottom: var(--spacing-xl);
     gap: var(--spacing-md);
@@ -766,7 +766,7 @@ body.has-page-background .track-item:hover {
 
 .track-item.playing {
     background-color: rgba(var(--highlight-rgb), 0.15);
-    border-left: 3px solid var(--highlight);
+    border: 1px solid var(--highlight);
     padding-left: calc(var(--spacing-sm) - 3px);
 }
 
@@ -3376,8 +3376,8 @@ img:not([src]), img[src=''] {
 .search-bar {
   display: flex;
   align-items: center;
-  width: 80%;
-  max-width: 100%;
+  width: 800px;
+  max-width: 800px;
 }
 
 
