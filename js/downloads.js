@@ -21,7 +21,6 @@ import { DashDownloader } from './dash-downloader.js';
  */
 async function sendToServer(type, id) {
     const serverUrl = serverDownloadSettings.getUrl();
-    const apiKey = serverDownloadSettings.getApiKey();
     const quality = downloadQualitySettings.getQuality();
     const downloadLyrics = lyricsSettings.shouldDownloadLyrics();
     const folderTemplate = localStorage.getItem('zip-folder-template') || '{albumTitle} - {albumArtist}';
@@ -29,10 +28,6 @@ async function sendToServer(type, id) {
     const headers = {
         'Content-Type': 'application/json',
     };
-
-    if (apiKey) {
-        headers['Authorization'] = `Bearer ${apiKey}`;
-    }
 
     try {
         const response = await fetch(`${serverUrl}/download`, {
