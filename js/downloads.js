@@ -9,9 +9,55 @@ import {
     SVG_CLOSE,
     getCoverBlob,
 } from './utils.js';
-import { lyricsSettings, bulkDownloadSettings } from './storage.js';
+import { lyricsSettings, bulkDownloadSettings, serverDownloadSettings, downloadQualitySettings } from './storage.js';
 import { addMetadataToAudio } from './metadata.js';
 import { DashDownloader } from './dash-downloader.js';
+
+/**
+ * Send a download request to the chromemono server.
+ * @param {string} type - 'track', 'album', or 'playlist'
+ * @param {string} id - TIDAL resource ID
+ * @returns {Promise<{success: boolean, message?: string, job?: object}>}
+ */
+async function sendToServer(type, id) {
+    const serverUrl = serverDownloadSettings.getUrl();
+    const apiKey = serverDownloadSettings.getApiKey();
+    const quality = downloadQualitySettings.getQuality();
+    const downloadLyrics = lyricsSettings.shouldDownloadLyrics();
+    const folderTemplate = localStorage.getItem('zip-folder-template') || '{albumTitle} - {albumArtist}';
+
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (apiKey) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+
+    try {
+        const response = await fetch(`${serverUrl}/download`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                type,
+                id: String(id),
+                quality,
+                lyrics: downloadLyrics,
+                folderTemplate,
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+            return { success: false, message: error.error || `Server error: ${response.status}` };
+        }
+
+        const data = await response.json();
+        return { success: true, message: data.message, job: data.job };
+    } catch (error) {
+        return { success: false, message: `Failed to connect to server: ${error.message}` };
+    }
+}
 
 const downloadTasks = new Map();
 const bulkDownloadTasks = new Map();
@@ -405,6 +451,13 @@ export async function downloadTracks(tracks, api, quality, lyricsManager = null)
 }
 
 export async function downloadAlbumAsZip(album, tracks, api, quality, lyricsManager = null) {
+    // Server download mode
+    if (serverDownloadSettings.isEnabled() && album.id) {
+        const result = await sendToServer('album', album.id);
+        showNotification(result.success ? `Album "${album.title}" queued on server` : `Server error: ${result.message}`);
+        return;
+    }
+
     const releaseDateStr =
         album.releaseDate || (tracks[0]?.streamStartDate ? tracks[0].streamStartDate.split('T')[0] : '');
     const releaseDate = releaseDateStr ? new Date(releaseDateStr) : null;
@@ -421,6 +474,13 @@ export async function downloadAlbumAsZip(album, tracks, api, quality, lyricsMana
 }
 
 export async function downloadPlaylistAsZip(playlist, tracks, api, quality, lyricsManager = null) {
+    // Server download mode
+    if (serverDownloadSettings.isEnabled() && playlist.uuid) {
+        const result = await sendToServer('playlist', playlist.uuid);
+        showNotification(result.success ? `Playlist "${playlist.title}" queued on server` : `Server error: ${result.message}`);
+        return;
+    }
+
     const folderName = formatTemplate(localStorage.getItem('zip-folder-template') || '{albumTitle} - {albumArtist}', {
         albumTitle: playlist.title,
         albumArtist: 'Playlist',
@@ -625,6 +685,13 @@ function completeBulkDownload(notifEl, success = true, message = null) {
 export async function downloadTrackWithMetadata(track, quality, api, lyricsManager = null, abortController = null) {
     if (!track) {
         alert('No track is currently playing');
+        return;
+    }
+
+    // Server download mode - send to chromemono server instead
+    if (serverDownloadSettings.isEnabled()) {
+        const result = await sendToServer('track', track.id);
+        showNotification(result.success ? 'Track queued on server' : `Server error: ${result.message}`);
         return;
     }
 

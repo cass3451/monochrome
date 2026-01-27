@@ -15,6 +15,7 @@ import {
     qualityBadgeSettings,
     visualizerSettings,
     bulkDownloadSettings,
+    serverDownloadSettings,
 } from './storage.js';
 import { db } from './db.js';
 import { authManager } from './accounts/auth.js';
@@ -377,6 +378,42 @@ export function initializeSettings(scrobbler, player, api, ui) {
         romajiLyricsToggle.checked = localStorage.getItem('lyricsRomajiMode') === 'true';
         romajiLyricsToggle.addEventListener('change', (e) => {
             localStorage.setItem('lyricsRomajiMode', e.target.checked ? 'true' : 'false');
+        });
+    }
+
+    // Server Download Settings
+    const serverDownloadToggle = document.getElementById('server-download-toggle');
+    const serverDownloadUrlSetting = document.getElementById('server-download-url-setting');
+    const serverDownloadApikeySetting = document.getElementById('server-download-apikey-setting');
+    const serverDownloadUrl = document.getElementById('server-download-url');
+    const serverDownloadApikey = document.getElementById('server-download-apikey');
+
+    const updateServerDownloadVisibility = (enabled) => {
+        if (serverDownloadUrlSetting) serverDownloadUrlSetting.style.display = enabled ? 'flex' : 'none';
+        if (serverDownloadApikeySetting) serverDownloadApikeySetting.style.display = enabled ? 'flex' : 'none';
+    };
+
+    if (serverDownloadToggle) {
+        serverDownloadToggle.checked = serverDownloadSettings.isEnabled();
+        updateServerDownloadVisibility(serverDownloadToggle.checked);
+
+        serverDownloadToggle.addEventListener('change', (e) => {
+            serverDownloadSettings.setEnabled(e.target.checked);
+            updateServerDownloadVisibility(e.target.checked);
+        });
+    }
+
+    if (serverDownloadUrl) {
+        serverDownloadUrl.value = serverDownloadSettings.getUrl();
+        serverDownloadUrl.addEventListener('change', (e) => {
+            serverDownloadSettings.setUrl(e.target.value.trim());
+        });
+    }
+
+    if (serverDownloadApikey) {
+        serverDownloadApikey.value = serverDownloadSettings.getApiKey();
+        serverDownloadApikey.addEventListener('change', (e) => {
+            serverDownloadSettings.setApiKey(e.target.value);
         });
     }
 

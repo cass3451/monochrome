@@ -621,6 +621,48 @@ export const bulkDownloadSettings = {
     },
 };
 
+export const serverDownloadSettings = {
+    ENABLED_KEY: 'server-download-enabled',
+    URL_KEY: 'server-download-url',
+    API_KEY_KEY: 'server-download-api-key',
+
+    isEnabled() {
+        try {
+            return localStorage.getItem(this.ENABLED_KEY) === 'true';
+        } catch {
+            return false;
+        }
+    },
+
+    setEnabled(enabled) {
+        localStorage.setItem(this.ENABLED_KEY, enabled ? 'true' : 'false');
+    },
+
+    getUrl() {
+        try {
+            return localStorage.getItem(this.URL_KEY) || 'http://localhost:5051';
+        } catch {
+            return 'http://localhost:5051';
+        }
+    },
+
+    setUrl(url) {
+        localStorage.setItem(this.URL_KEY, url);
+    },
+
+    getApiKey() {
+        try {
+            return localStorage.getItem(this.API_KEY_KEY) || '';
+        } catch {
+            return '';
+        }
+    },
+
+    setApiKey(key) {
+        localStorage.setItem(this.API_KEY_KEY, key);
+    },
+};
+
 export const visualizerSettings = {
     SENSITIVITY_KEY: 'visualizer-sensitivity',
     SMART_INTENSITY_KEY: 'visualizer-smart-intensity',
