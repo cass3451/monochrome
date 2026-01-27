@@ -624,7 +624,6 @@ export const bulkDownloadSettings = {
 export const serverDownloadSettings = {
     ENABLED_KEY: 'server-download-enabled',
     URL_KEY: 'server-download-url',
-    API_KEY_KEY: 'server-download-api-key',
 
     isEnabled() {
         try {
@@ -648,18 +647,6 @@ export const serverDownloadSettings = {
 
     setUrl(url) {
         localStorage.setItem(this.URL_KEY, url);
-    },
-
-    getApiKey() {
-        try {
-            return localStorage.getItem(this.API_KEY_KEY) || '';
-        } catch {
-            return '';
-        }
-    },
-
-    setApiKey(key) {
-        localStorage.setItem(this.API_KEY_KEY, key);
     },
 };
 
