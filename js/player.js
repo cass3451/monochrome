@@ -100,7 +100,7 @@ export class Player {
             this.originalQueueBeforeShuffle = savedState.originalQueueBeforeShuffle || [];
             this.currentQueueIndex = savedState.currentQueueIndex ?? -1;
             this.shuffleActive = savedState.shuffleActive || false;
-            this.repeatMode = savedState.repeatMode || REPEAT_MODE.OFF;
+            this.repeatMode = savedState.repeatMode !== undefined ? savedState.repeatMode : REPEAT_MODE.OFF;
 
             // Restore current track if queue exists and index is valid
             const currentQueue = this.shuffleActive ? this.shuffledQueue : this.queue;

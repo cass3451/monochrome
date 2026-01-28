@@ -40,7 +40,7 @@ export function initializePlayerEvents(player, audioPlayer, scrobbler, ui) {
         shuffleBtn.classList.add('active');
     }
 
-    if (player.repeatMode !== REPEAT_MODE.OFF) {
+    if (player.repeatMode && player.repeatMode !== REPEAT_MODE.OFF) {
         repeatBtn.classList.add('active');
         if (player.repeatMode === REPEAT_MODE.ONE) {
             repeatBtn.classList.add('repeat-one');
