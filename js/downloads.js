@@ -16,11 +16,12 @@ import { DashDownloader } from './dash-downloader.js';
 
 /**
  * Send a download request to the chromemono server.
- * @param {string} type - 'track', 'album', or 'playlist'
- * @param {string} id - TIDAL resource ID
+ * @param {string} type - 'track', 'album', or 'playlist_tracks'
+ * @param {string} id - TIDAL resource ID (for track/album)
+ * @param {object} options - Additional options for playlist_tracks
  * @returns {Promise<{success: boolean, message?: string, job?: object}>}
  */
-async function sendToServer(type, id) {
+async function sendToServer(type, id, options = {}) {
     const serverUrl = serverDownloadSettings.getUrl();
     const apiKey = serverDownloadSettings.getApiKey();
     const quality = downloadQualitySettings.getQuality();
@@ -35,17 +36,31 @@ async function sendToServer(type, id) {
         headers['Authorization'] = `Bearer ${apiKey}`;
     }
 
+    // Build request body based on type
+    let body;
+    if (type === 'playlist_tracks') {
+        body = {
+            type,
+            name: options.name,
+            trackIds: options.trackIds,
+            quality,
+            lyrics: downloadLyrics,
+        };
+    } else {
+        body = {
+            type,
+            id: String(id),
+            quality,
+            lyrics: downloadLyrics,
+            folderTemplate,
+        };
+    }
+
     try {
         const response = await fetch(`${serverUrl}/download`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({
-                type,
-                id: String(id),
-                quality,
-                lyrics: downloadLyrics,
-                folderTemplate,
-            }),
+            body: JSON.stringify(body),
         });
 
         if (!response.ok) {
@@ -478,9 +493,13 @@ export async function downloadAlbumAsZip(album, tracks, api, quality, lyricsMana
 }
 
 export async function downloadPlaylistAsZip(playlist, tracks, api, quality, lyricsManager = null) {
-    // Server download mode
-    if (serverDownloadSettings.isEnabled() && playlist.uuid) {
-        const result = await sendToServer('playlist', playlist.uuid);
+    // Server download mode - send track IDs for user playlists
+    if (serverDownloadSettings.isEnabled() && tracks.length > 0) {
+        const trackIds = tracks.map(t => String(t.id));
+        const result = await sendToServer('playlist_tracks', null, {
+            name: playlist.title || playlist.name || 'Playlist',
+            trackIds,
+        });
         showNotification(result.success ? `Playlist "${playlist.title}" queued on server` : `Server error: ${result.message}`);
         return;
     }
